@@ -1,3 +1,5 @@
 UCI HAR Dataset
 sample
 *.zip
+.RData
+.Rhistory
