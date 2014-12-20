@@ -1,6 +1,5 @@
 library(tidyr)
 library(dplyr)
-setwd("~/Developer/work/DataScience/getdata-016-project")
 
 header.phone.data <- function(directory) {
   ## read feature headers from features file
@@ -18,7 +17,7 @@ header.phone.data <- function(directory) {
 
 ## load data assuming they are in a subfolder
 ## in your working directory
-phone.data <- function(directory, type=F) {
+phone.data <- function(directory, type) {
   feature_header <- header.phone.data(directory)
   ## read data
   data <- read.fwf(
@@ -30,7 +29,7 @@ phone.data <- function(directory, type=F) {
   data
 }
 
-subject.phone.data <- function(directory, type=F) {
+subject.phone.data <- function(directory, type) {
   ## read subject id
   data <- read.table(
     paste0(directory, "/", type,
@@ -40,7 +39,7 @@ subject.phone.data <- function(directory, type=F) {
   data
 }
 
-activity.phone.data <- function(directory, type=F) {
+activity.phone.data <- function(directory, type) {
   ## read activity ids
   activityids <- read.table(
     paste0(directory, "/", type,
@@ -57,7 +56,7 @@ activity.phone.data <- function(directory, type=F) {
   data
 }
 
-prepare.phone.data <- function(directory=F) {
+prepare.phone.data <- function(directory) {
   # x data with appropriate labels
   ## select only the needed columns which are the columns that
   ## contain mean, std and the activity names
@@ -77,11 +76,11 @@ prepare.phone.data <- function(directory=F) {
   data
 }
 ## convert to table data.frame for use with dplyr and tidyr
-data <- tbl_df(prepare.phone.data("UCI HAR Dataset"))
+raw_data <- tbl_df(prepare.phone.data("UCI HAR Dataset"))
 
-data <- data %>%
+tidy_data <- raw_data %>%
   gather(key, value, -activity, -subject) %>%
   separate(key, c("featureid", "measurement", "aggregation", "axis")) %>%
   select(-featureid) %>% separate(measurement, c("domain", "measurment"), sep = 1)
 
-write.table(data, "data_table.txt", row.names=F)
+write.table(tidy_data, "data_table.txt", row.names=F)
