@@ -54,42 +54,55 @@ data <- read.fwf(
 
 Subject and Activity loaded in using seperate files
 
+Loading in Subject is straight forward using `read.table`
+
+Loading in Activity data is same as Subject using `read.table` but since Activity data is loaded as ids, Activity names need to be loaded as well and merged to get readable data.
+
+1. Load in activity ids
+
+    ```
+    activityids <- read.table(
+      paste0(directory, "/", type,
+        paste0("/y_", type, ".txt")),
+      header = F, sep = " ", quote = "", comment.char = "")
+    ```
+
+2. load activity names
+
+    ```
+    ##load activity names
+    activitynames <- read.table(
+      paste0(directory, "/activity_labels.txt"),
+      header = F, sep = " ", quote = "", 
+      stringsAsFactors = F, comment.char = "")[,2]
+    ```
+3 . convert ids to activity names
+
+    ```
+    data <- sapply(activityids, function(x) activitynames[x])
+    colnames(data) <- "activity"
+    ```
+
+Output of this step will have the subject column as well as the activity coulmn ready for use
+
 ###Merging loaded data
 
-The raw dataset was created using the following regular expression to filter out required
-features, eg. the measurements on the mean and standard deviation for each measurement
-from the original feature vector set 
+All data are available from the previous three steps with the correct order all that needs to be done is 
 
-`-(mean|std)\\(`
+1. `rbind` (TrainData, TestData) then
+2. `cbind` (Subject, Data, Activity)  
+3. Only Mean and Std columns are required for the project so using tidyr and dplyr coumns that contains `.mean.` or `.std.` are left in the data set.
 
-This regular expression selects 66 features from the original data set.
-Combined with subject identifiers `subject` and activity labels `label`, this makes up the
-68 variables of the processed raw data set.
-
-The training and test subsets of the original dataset were combined to produce final raw dataset.
-
+    ```
+    data <- rbind( # Merge training and test data
+    select(phone.data(directory, "train"), 
+           contains(".mean."), contains(".std.")),
+    select(phone.data(directory, "test"), 
+           contains(".mean."), contains(".std.")))
+    ```
+    
+    since after name cleaning all "-", "(", ")" have been converted to "." using the `make.names` function using ".std." and ".mean." makes sure that only "mean()" and "-std()" pass throught while something like "meanFreq()" won't pass in.
+    
 ### Tidy data set
 
-Tidy data set contains the average of all feature standard deviation and mean values of the raw dataset. 
-Original variable names were modified in the follonwing way:
-
- 1. Replaced `-mean` with `Mean`
- 2. Replaced `-std` with `Std`
- 3. Removed parenthesis `-()`
- 4. Replaced `BodyBody` with `Body`
-
-It should be noted that the variable names are formatted in camelCase, as described in 
-[Google R Styde Guide](http://google-styleguide.googlecode.com/svn/trunk/Rguide.xml). 
-
-#### Sample of renamed variables compared to original variable name
-
- Raw data            | Tidy data 
- --------------------|--------------
- `subject`           | `subject`
- `label`             | `label`
- `tBodyAcc-mean()-X` | `tBodyAccMeanX`
- `tBodyAcc-mean()-Y` | `tBodyAccMeanY`
- `tBodyAcc-mean()-Z` | `tBodyAccMeanZ`
- `tBodyAcc-std()-X`  | `tBodyAccStdX`
- `tBodyAcc-std()-Y`  | `tBodyAccStdY`
- `tBodyAcc-std()-Z`  | `tBodyAccStdZ`
+TODO

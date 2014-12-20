@@ -78,9 +78,5 @@ prepare.phone.data <- function(directory) {
 ## convert to table data.frame for use with dplyr and tidyr
 raw_data <- tbl_df(prepare.phone.data("UCI HAR Dataset"))
 
-tidy_data <- raw_data %>%
-  gather(key, value, -activity, -subject) %>%
-  separate(key, c("featureid", "measurement", "aggregation", "axis")) %>%
-  select(-featureid) %>% separate(measurement, c("domain", "measurment"), sep = 1)
-
 write.table(tidy_data, "data_table.txt", row.names=F)
+
