@@ -14,7 +14,7 @@ the zipped dataset file.
 
 ## Steps
 
-###Loading feature headers
+### Loading feature headers
 
 When Loading feature headers with R is seems to think there are duplicates so to disambiguate feature names by (steps are combined in 1 call)
 
@@ -31,7 +31,7 @@ feature_header <- mapply(paste0, seq_along(feature_header), ".",
         sub("bodybody", "body", gsub("\\.+", ".", make.names(tolower(x))))
 }))
 ```
-###Loading train and test data
+### Loading train and test data
 
 Data file is stored in a fixed width file, so function read.fwf was used to load train and test data.
 
@@ -50,7 +50,7 @@ data <- read.fwf(
     header = F, comment.char = "")
 ```
 
-###Loading Subject and Activity data
+### Loading Subject and Activity data
 
 Subject and Activity loaded in using seperate files
 
@@ -85,7 +85,7 @@ Loading in Activity data is same as Subject using `read.table` but since Activit
 
 Output of this step will have the subject column as well as the activity coulmn ready for use
 
-###Merging loaded data
+### Merging loaded data
 
 All data are available from the previous three steps with the correct order all that needs to be done is 
 
@@ -101,8 +101,27 @@ All data are available from the previous three steps with the correct order all 
            contains(".mean."), contains(".std.")))
     ```
     
-    since after name cleaning all "-", "(", ")" have been converted to "." using the `make.names` function using ".std." and ".mean." makes sure that only "mean()" and "-std()" pass throught while something like "meanFreq()" won't pass in.
-    
-### Tidy data set
+    since after name cleaning all "-", "(", ")" have been converted to "." using the `make.names` function using ".std." and ".mean." makes sure that only "-mean()" and "-std()" pass throught while something like "meanFreq()" won't pass in.
 
-TODO
+## Tidy data set
+
+### Data Set Structure
+
+All variables were moved into rows with new columns,
+
+| subject | activity         | domain | aggregation | axis | mean       |
+|:-------:|------------------|--------|-------------|------|------------|
+| 1       | LAYING           | t      | bodyacc     | x    | -0.8336256 |
+| 1       | WALKING          | f      | bodyaccjerk | y    | -0.9641607 |
+| 1       | WALKING_UPSTAIRS | t      | bodyacc     | z    | -0.8128916 |
+| ...     | ...              | ...    | ...         | ...  | ...        |
+
+
+| Column      | Description                                                      |
+|:-----------:|------------------------------------------------------------------|
+| subject     | User id that generated the experement values                     |    
+| activity    | What activity was the subject doing                              |
+| domain      | Values are given in 2 domains either time or frequency           |
+| aggregation | What aggregation was applied to generate the value, mean or std  |
+| axis        | Which axis was this measure taken x, y, z or ""(Not Applicable)  |
+| mean        | Numeric value representing the mean of the values                |
